@@ -1,0 +1,465 @@
+// Farmhill Store — schema database
+// Mengikuti model data ringkas di PRD section 9, dipecah per domain.
+// Lihat ERD: https://claude.ai/code/artifact/a5630c11-ec9d-4fb6-8354-32cdb4f7e9d7
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enum ────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  admin
+  sales
+}
+
+enum CustomerSegment {
+  rumah_tangga
+  kafe
+  reseller
+}
+
+enum ProductCategory {
+  melon
+  buah
+  buah_potong
+  paket
+  paket_melon
+  minuman
+  kurma
+  sayur
+  snack
+  frozen
+}
+
+enum ProductStatus {
+  aktif
+  draft
+  habis
+}
+
+enum RipenessOption {
+  mentah
+  matang
+  pelanggan_pilih
+}
+
+enum RoundingRule {
+  nearest_100g
+  round_down
+  none
+}
+
+enum WeightTolerance {
+  persen_5
+  persen_10
+  always_confirm
+}
+
+enum OrderStatus {
+  menunggu_konfirmasi
+  menunggu_bayar
+  diproses
+  dikirim
+  selesai
+  dibatalkan
+  kedaluwarsa
+}
+
+enum FulfillmentMethod {
+  driver
+  ambil_sendiri
+  ekspedisi
+}
+
+enum PaymentMethod {
+  transfer_manual
+  qris
+  e_wallet
+  va
+  cod
+}
+
+enum PaymentStatus {
+  pending
+  verified
+  rejected
+}
+
+enum VoucherType {
+  nominal
+  persen
+}
+
+enum StockMovementKind {
+  terjual // otomatis waktu order fulfilled (diproses -> dikirim)
+  waste_kulit
+  waste_busuk // "Waste Tidak Manis" di sheet lama
+  waste_reject
+  penyesuaian // koreksi opname manual, bisa naik/turun (lihat StockMovement.perubahan)
+}
+
+// ─── Akun internal ──────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama      String
+  kontak    String   @unique
+  role      UserRole
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  confirmedOrders  Order[]         @relation("OrderSales")
+  verifiedPayments Payment[]       @relation("PaymentVerifier")
+  actionLogs       ActionLog[]     @relation("ActionLogActor")
+  stockBatches     StockBatch[]
+  stockMovements   StockMovement[]
+
+  @@map("users")
+}
+
+// ─── Pelanggan ───────────────────────────────────────────────────────────
+
+model Customer {
+  id                     String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama                   String
+  wa                     String          @unique
+  email                  String?         @unique
+  alamat                 String?
+  segmen                 CustomerSegment?
+  preferensiKematangan   String?         @map("preferensi_kematangan")
+  createdAt              DateTime        @default(now()) @map("created_at")
+
+  orders   Order[]
+  waitlist Waitlist[]
+
+  @@map("customers")
+}
+
+// ─── Katalog & stok ──────────────────────────────────────────────────────
+
+model Product {
+  id                   String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama                 String
+  sku                  String          @unique
+  jenisItem            ProductCategory @map("jenis_item")
+  asalKebun            String?         @map("asal_kebun")
+  deskripsi            String?
+  pembulatanBerat      RoundingRule    @default(nearest_100g) @map("pembulatan_berat")
+  toleransiSelisih     WeightTolerance @default(persen_10) @map("toleransi_selisih")
+  ambangStokTipis      Decimal?        @map("ambang_stok_tipis") @db.Decimal(10, 2)
+  estPanenBerikutnya   DateTime?       @map("est_panen_berikutnya") @db.Date
+  kematangan           RipenessOption  @default(pelanggan_pilih)
+  status               ProductStatus   @default(draft)
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  photos         ProductPhoto[]
+  saleUnits      SaleUnit[]
+  stockBatches   StockBatch[]
+  stockMovements StockMovement[]
+  stock          Stock?
+  waitlist       Waitlist[]
+
+  @@map("products")
+}
+
+model ProductPhoto {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  url       String
+  urutan    Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_photos")
+}
+
+model SaleUnit {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  satuan     String // butir | kg | ons | pack | paket | botol
+  // perfect | imperfect (melon, lihat src/lib/melon-grade.ts) | jumbo | mix (produk lain,
+  // makna bebas per kategori — cuma melon yang dipakai buat logika grade/size ledger)
+  grade      String?
+  // Size buah per-butir (S/M/L/XL/JB) — cuma dipakai melon Grade A. Non-null berarti
+  // harga final baru pasti setelah sales input berat aktual (lihat OrderItem.beratAktual).
+  ukuran     String?
+  harga      Decimal  @db.Decimal(12, 2)
+  convKeKg   Decimal? @map("conv_ke_kg") @db.Decimal(10, 4)
+  estBerat   Decimal? @map("est_berat") @db.Decimal(10, 2)
+  minOrder   Int      @default(1) @map("min_order")
+  // Tingkat harga size melon Perfect (Standar/+8rb/+16rb) berbagi SATU kolam stok: kolom ini
+  // menunjuk SaleUnit Perfect tanpa size yang menyimpan stoknya. Null = unit punya stok sendiri.
+  stokUnitId String?  @map("stok_unit_id") @db.Uuid
+
+  stokUnit       SaleUnit?        @relation("StokKolam", fields: [stokUnitId], references: [id], onDelete: SetNull)
+  tingkat        SaleUnit[]       @relation("StokKolam")
+  product        Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems     OrderItem[]
+  stock          SaleUnitStock?
+  stockBatches   StockBatch[]
+  stockMovements StockMovement[]
+
+  @@index([stokUnitId])
+  @@map("sale_units")
+}
+
+// Stok per-varian (dipakai untuk SaleUnit dengan `ukuran` terisi, mis. melon per size) —
+// terpisah dari Stock (agregat per produk) supaya produk lain yang belum butuh
+// granularitas ini tidak perlu migrasi data.
+model SaleUnitStock {
+  saleUnitId String  @id @map("sale_unit_id") @db.Uuid
+  jumlah     Decimal @default(0) @db.Decimal(10, 2)
+  ditahan    Decimal @default(0) @db.Decimal(10, 2)
+
+  saleUnit SaleUnit @relation(fields: [saleUnitId], references: [id], onDelete: Cascade)
+
+  @@map("sale_unit_stock")
+}
+
+model StockBatch {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId      String    @map("product_id") @db.Uuid
+  // Diisi kalau batch ini masuk ke stok per-ukuran (mis. melon per size) —
+  // nambah SaleUnitStock.jumlah, bukan Stock.jumlah agregat produk.
+  saleUnitId     String?   @map("sale_unit_id") @db.Uuid
+  tanggalMasuk   DateTime  @map("tanggal_masuk") @db.Date
+  bestBefore     DateTime? @map("best_before") @db.Date
+  // perfect | imperfect | outspec — grade panen (lihat src/lib/melon-grade.ts). Wajib
+  // diisi untuk melon lewat AddStockBatchForm; produk lain boleh kosong.
+  grade          String?
+  brix           Decimal?  @db.Decimal(5, 2)
+  jumlah         Decimal   @db.Decimal(10, 2)
+  lokasiSimpan   String?   @map("lokasi_simpan")
+  catatan        String?
+  dicatatOlehId  String?   @map("dicatat_oleh_id") @db.Uuid
+  // ID baris dari Google Sheet (lihat src/lib/stock-sync.ts) — null kalau dicatat di aplikasi.
+  externalId     String?   @unique @map("external_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleUnit     SaleUnit? @relation(fields: [saleUnitId], references: [id], onDelete: Cascade)
+  dicatatOleh  User?     @relation(fields: [dicatatOlehId], references: [id], onDelete: SetNull)
+
+  @@map("stock_batches")
+}
+
+// Agregat stok berjalan — dihitung ulang tiap ada batch masuk / pesanan lunas.
+model Stock {
+  productId    String  @id @map("product_id") @db.Uuid
+  jumlah       Decimal @default(0) @db.Decimal(10, 2)
+  ditahan      Decimal @default(0) @db.Decimal(10, 2)
+  ambangKritis Decimal? @map("ambang_kritis") @db.Decimal(10, 2)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("stock")
+}
+
+// Ledger stok keluar/koreksi — pasangan "OUT" dari StockBatch ("IN"). Dibuat otomatis
+// waktu order fulfilled (jenis=terjual, lihat advance-order.ts) atau dicatat manual oleh
+// admin (waste/penyesuaian, lihat manage-stock-movement.ts). Ini yang bikin Stock.jumlah/
+// SaleUnitStock.jumlah selalu bisa ditelusuri asal perubahannya, gantinya overwrite polos.
+model StockMovement {
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId     String            @map("product_id") @db.Uuid
+  saleUnitId    String?           @map("sale_unit_id") @db.Uuid
+  orderId       String?           @map("order_id") @db.Uuid
+  jenis         StockMovementKind
+  // Signed: negatif = keluar (terjual/waste), positif = opname nemu lebih dari catatan.
+  perubahan     Decimal           @db.Decimal(10, 2)
+  tanggal       DateTime          @default(now())
+  catatan       String?
+  dicatatOlehId String?           @map("dicatat_oleh_id") @db.Uuid
+  // ID baris dari Google Sheet (lihat src/lib/stock-sync.ts) — null kalau dicatat di aplikasi.
+  externalId    String?           @unique @map("external_id")
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleUnit    SaleUnit? @relation(fields: [saleUnitId], references: [id], onDelete: SetNull)
+  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  dicatatOleh User?     @relation(fields: [dicatatOlehId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([saleUnitId])
+  @@map("stock_movements")
+}
+
+// Baris tunggal (id tetap "default") — kapasitas & cut-off slot pengiriman (BR-03).
+model SlotSetting {
+  id            String   @id @default("default")
+  kapasitasPagi Int      @default(20) @map("kapasitas_pagi")
+  kapasitasSore Int      @default(20) @map("kapasitas_sore")
+  cutoffSoreJam Int      @default(13) @map("cutoff_sore_jam")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("slot_settings")
+}
+
+// Baris tunggal (id tetap "default") — profil gudang & info pembayaran yang
+// sebelumnya hardcode di kode, sekarang bisa diedit lewat panel Pengaturan.
+model StoreSetting {
+  id            String   @id @default("default")
+  namaGudang    String   @default("Gudang Cinde Barat, Semarang") @map("nama_gudang")
+  alamatGudang  String   @default("") @map("alamat_gudang")
+  // Array {nama, noRekening, atasNama} — jumlah rekening bebas, bukan cuma 2.
+  banks         Json     @default("[]")
+  qrisImageUrl  String   @default("/payment/qris-farmhill.png") @map("qris_image_url")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("store_settings")
+}
+
+// ─── Pesanan & pembayaran ────────────────────────────────────────────────
+
+model Order {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String            @map("customer_id") @db.Uuid
+  salesId        String?           @map("sales_id") @db.Uuid
+  status         OrderStatus       @default(menunggu_konfirmasi)
+  subtotal       Decimal           @default(0) @db.Decimal(12, 2)
+  ongkir         Decimal?          @db.Decimal(12, 2)
+  diskon         Decimal           @default(0) @db.Decimal(12, 2)
+  total          Decimal           @default(0) @db.Decimal(12, 2)
+  tanggalSlot    DateTime          @map("tanggal_slot") @db.Date
+  jamSlot        String            @map("jam_slot") // "09:00-12:00" | "15:00-18:00"
+  metodeTerima   FulfillmentMethod @map("metode_terima")
+  metodeBayar    PaymentMethod?    @map("metode_bayar")
+  batasBayar     DateTime?         @map("batas_bayar")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  sales         User?           @relation("OrderSales", fields: [salesId], references: [id])
+  items          OrderItem[]
+  payments       Payment[]
+  shipment       Shipment?
+  voucherUsages  VoucherUsage[]
+  stockMovements StockMovement[]
+
+  @@index([status])
+  @@index([tanggalSlot])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId         String  @map("order_id") @db.Uuid
+  saleUnitId      String  @map("sale_unit_id") @db.Uuid
+  // Untuk SaleUnit per-ukuran (melon): qty adalah kg (diminta langsung, atau
+  // estimasi dari butirDiminta x rata-rata berat size) — dipakai buat cek/tahan
+  // stok yang juga dalam kg. Untuk unit biasa: qty = jumlah satuan seperti biasa.
+  qty             Decimal @db.Decimal(10, 2)
+  // Jumlah butir yang diminta pelanggan (mode "butir") — cuma buat ditampilkan ke
+  // sales biar tau berapa buah yang perlu ditimbang; tidak dipakai untuk hitung.
+  butirDiminta    Int?    @map("butir_diminta")
+  beratAktual     Decimal? @map("berat_aktual") @db.Decimal(10, 2)
+  hargaSaatPesan  Decimal @map("harga_saat_pesan") @db.Decimal(12, 2)
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  saleUnit SaleUnit @relation(fields: [saleUnitId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId        String        @map("order_id") @db.Uuid
+  verifikatorId  String?       @map("verifikator_id") @db.Uuid
+  metode         PaymentMethod
+  nominal        Decimal       @db.Decimal(12, 2)
+  buktiUrl       String?       @map("bukti_url")
+  status         PaymentStatus @default(pending)
+  waktu          DateTime      @default(now())
+
+  order       Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  verifikator User? @relation("PaymentVerifier", fields: [verifikatorId], references: [id])
+
+  @@map("payments")
+}
+
+model Shipment {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId               String    @unique @map("order_id") @db.Uuid
+  driverNama            String?   @map("driver_nama")
+  slot                  String?
+  buktiSerahTerimaUrl   String?   @map("bukti_serah_terima_url")
+  deliveredAt           DateTime? @map("delivered_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("shipments")
+}
+
+// ─── Diskon ──────────────────────────────────────────────────────────────
+
+model Voucher {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kode            String      @unique
+  tipe            VoucherType
+  nilai           Decimal     @db.Decimal(12, 2)
+  kuota           Int?
+  minimalBelanja  Decimal?    @map("minimal_belanja") @db.Decimal(12, 2)
+  mulai           DateTime?   @db.Date
+  berakhir        DateTime?   @db.Date
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  usages VoucherUsage[]
+
+  @@map("vouchers")
+}
+
+model VoucherUsage {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  voucherId String @map("voucher_id") @db.Uuid
+  orderId   String @map("order_id") @db.Uuid
+
+  voucher Voucher @relation(fields: [voucherId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([voucherId, orderId])
+  @@map("voucher_usage")
+}
+
+// ─── Daftar tunggu panen ─────────────────────────────────────────────────
+
+model Waitlist {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String    @map("product_id") @db.Uuid
+  customerId  String    @map("customer_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  notifiedAt  DateTime? @map("notified_at")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, customerId])
+  @@map("waitlist")
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────
+
+model ActionLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entitas    String // "order" | "product" | "stock" | dst
+  entitasId  String   @map("entitas_id") @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  aksi       String
+  nilaiLama  Json?    @map("nilai_lama")
+  nilaiBaru  Json?    @map("nilai_baru")
+  waktu      DateTime @default(now())
+
+  actor User? @relation("ActionLogActor", fields: [actorId], references: [id])
+
+  // entitasId polimorfik (order/product/stock/dst) — sengaja tanpa FK hard constraint,
+  // divalidasi di application layer sesuai kolom `entitas`.
+  @@index([entitas, entitasId])
+  @@map("action_logs")
+}
