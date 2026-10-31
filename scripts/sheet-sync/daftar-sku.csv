@@ -1,0 +1,112 @@
+﻿SKU,NAMA PRODUK,KATEGORI
+FH-BPT-001,"Semangka Merah Potong",buah_potong
+FH-BPT-002,"Melon Slice",buah_potong
+FH-BPT-003,"Melon Slice Bundling 4",buah_potong
+FH-BUA-001,"Anggur Import Black Autumn",buah
+FH-BUA-002,"Kelengkeng",buah
+FH-BUA-003,"Jeruk Pomelo",buah
+FH-BUA-004,"Pear Century",buah
+FH-BUA-005,"Nangka",buah
+FH-BUA-006,"Jeruk Wokam",buah
+FH-BUA-007,"Nanas Slice",buah
+FH-BUA-008,"Jeruk Pomelo Kupas",buah
+FH-BUA-009,"Anggur Hijau Shine Muscat",buah
+FH-BUA-010,"Anggur Merah Crimson",buah
+FH-BUA-011,"Anggur Hitam Adora",buah
+FH-BUA-012,"Semangka",buah
+FH-BUA-013,"Blueberry",buah
+FH-BUA-014,"Anggur Hitam Auntum",buah
+FH-BUA-015,"Semangka Slice",buah
+FH-BUA-016,"Apel Fuji RRc",buah
+FH-BUA-017,"Jeruk Wokam Bag",buah
+FH-BUA-018,"Jeruk Santang Madu",buah
+FH-BUA-019,"Jeruk Santang Mandarin",buah
+FH-BUA-020,"Jeruk Santang",buah
+FH-BUA-021,"Nanas Honi",buah
+FH-BUA-022,"Jeruk Santang Daun",buah
+FH-BUA-023,"Durian Kupas",buah
+FH-BUA-024,"Mangga Harumanis",buah
+FH-BUA-025,"Leci",buah
+FH-BUA-026,"Kiwi Gold",buah
+FH-BUA-027,"Apel Fuji Premium",buah
+FH-BUA-028,"Apel Fuji",buah
+FH-BUA-029,"Kiwi Red",buah
+FH-BUA-030,"Anggur Hitam Saphire",buah
+FH-BUA-031,"Jeruk Santang Pure Sweet",buah
+FH-BUA-032,"Durian Montong Pack",buah
+FH-BUA-033,"Durian Lokal Medan",buah
+FH-BUA-034,"Pear Xianglie",buah
+FH-BUA-035,"Anggur Hijau Crips",buah
+FH-BUA-036,"Mangga Potong",buah
+FH-BUA-037,"Buah Naga Kuning",buah
+FH-BUA-038,"Mangga Kiojay",buah
+FH-BUA-039,"Jeruk Kimkit",buah
+FH-BUA-040,"Jeruk Phoenix",buah
+FH-BUA-041,"Nanas Kupas",buah
+FH-BUA-042,"Anggur Merah Red Globe",buah
+FH-BUA-043,"Jeruk Sunkist Cara Cara",buah
+FH-BUA-044,"Kiwi Mix",buah
+FH-BUA-045,"Jeruk Santang Matsui",buah
+FH-BUA-046,"Jeruk Santang Tangerin",buah
+FH-BUA-047,"Alpukat Kendil",buah
+FH-BUA-048,"Durian Kupas Lokal",buah
+FH-BUA-049,"Buah Naga Merah",buah
+FH-BUA-050,"Kelengkeng New Crystal",buah
+FH-BUA-051,"Anggur Hijau Sonaka",buah
+FH-BUA-052,"Buah Naga Putih",buah
+FH-BUA-053,"Durian Frozen",buah
+FH-BUA-054,"Anggur Red Muscat",buah
+FH-BUA-055,"Anggur Black Autumn Summer",buah
+FH-BUA-056,"Anggur Merah Sweet",buah
+FH-BUA-057,"Alpukat Pluwang",buah
+FH-BUA-058,"Nanas Potong",buah
+FH-BUA-059,"Mangga Harumanis Cherry",buah
+FH-BUA-060,"Anggur Mix",buah
+FH-BUA-061,"Stroberi",buah
+FH-BUA-062,"Sweet Plum",buah
+FH-BUA-063,"Jeruk Wokam Jaring",buah
+FH-BUA-064,"Apel Strawberry",buah
+FH-BUA-065,"Anggur Black King",buah
+FH-BUA-066,"Kiwi Green",buah
+FH-BUA-067,"Nangka Bundling 4 Pack",buah
+FH-BUA-068,"Anggur Hijau Muscat",buah
+FH-BUA-069,"Mangga Gedong Gincu",buah
+FH-BUA-070,"Durian Montong",buah
+FH-FRZ-001,"Kentang Frozen",frozen
+FH-FRZ-002,"Jagung Pipil 500 Gram",frozen
+FH-FRZ-003,"Mix Vegetable 250 Gram",frozen
+FH-FRZ-004,"Mix Vegetable 500 Gram",frozen
+FH-FRZ-005,"Jagung Pipil 250 Gram",frozen
+FH-KUR-001,"Kurma Palm Fruit",kurma
+FH-MEL-001,"Melon Sunray",melon
+FH-MEL-002,"Melon Greeniegal",melon
+FH-MEL-003,"Melon Midori",melon
+FH-MEL-004,"Melon Greeniesweet",melon
+FH-MEL-005,"Melon Sarasuka",melon
+FH-MEL-006,"Melon Emeralda",melon
+FH-MEL-007,"Melon Amaiame",melon
+FH-MEL-008,"Melon Elysia",melon
+FH-MEL-009,"Melon Aruni",melon
+FH-MEL-010,"Melon Caroline",melon
+FH-MEL-011,"Melon Dalmatian",melon
+FH-MIN-001,"Jus Melon Segar",minuman
+FH-MIN-002,"Jus Mangga",minuman
+FH-MIN-003,"Jus Alpukat",minuman
+FH-PKM-001,"Melon Jaring Isi 3",paket_melon
+FH-PKM-002,"Bundling Melon isi 3",paket_melon
+FH-PKM-003,"Aruni Bundling",paket_melon
+FH-PKM-004,"Bundling Midori isi 3",paket_melon
+FH-PKM-005,"Melon Jaring Mix 5",paket_melon
+FH-PKT-001,"Fruit Box Mini",paket
+FH-PKT-002,"Fruit Salad",paket
+FH-PKT-003,"Hampers Melon",paket
+FH-PKT-004,"Sweetmas Hampers",paket
+FH-PKT-005,"Parcel Buah",paket
+FH-PKT-006,"Hampers Lebaran",paket
+FH-PKT-007,"Paket Healthy",paket
+FH-PKT-008,"Parcel Pisang",paket
+FH-PKT-009,"Hampers Imlek",paket
+FH-SAY-001,"Cabai Merah",sayur
+FH-SAY-002,"Baby Carrot",sayur
+FH-SAY-003,"Cabai Bundling",sayur
+FH-SNK-001,"Snack Fruit",snack
