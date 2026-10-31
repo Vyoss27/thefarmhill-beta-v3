@@ -1,0 +1,441 @@
+@import "tailwindcss";
+
+/*
+ * The Farmhill Design System — token layer.
+ * Disalin dari _ds/the-farmhill-design-system-.../tokens/*.css (handoff desain,
+ * Sep 2026). Jangan edit nilai di sini langsung — ubah di project Claude
+ * Design lalu re-sync, supaya kode & desain tidak divergen diam-diam.
+ */
+:root {
+  /* ---- Brand mark literals (from logo-the-farmhill.png; use ONLY for the mark) ---- */
+  --brand-mark-red: #ce2027;
+  --brand-mark-leaf: #7cc144;
+  --brand-mark-leaf-deep: #1e9e4a;
+  --brand-mark-water: #1d6fa5;
+  --brand-mark-water-deep: #14456e;
+
+  /* ---- Leaf (primary) ---- */
+  --leaf-50: #f2f6ee;
+  --leaf-100: #e0ead8;
+  --leaf-200: #c3d6b6;
+  --leaf-300: #9ebf8d;
+  --leaf-400: #78a466;
+  --leaf-500: #5a8a48;
+  --leaf-600: #47713a;
+  --leaf-700: #38592e;
+  --leaf-800: #2b4424;
+  --leaf-900: #1f321a;
+
+  /* ---- Cantaloupe (accent) ---- */
+  --melon-50: #fef4eb;
+  --melon-100: #fce4cf;
+  --melon-200: #f8c79e;
+  --melon-300: #f3a768;
+  --melon-400: #ec8940;
+  --melon-500: #e0722a;
+  --melon-600: #c25a1c;
+  --melon-700: #9a4616;
+  --melon-800: #743411;
+  --melon-900: #50240c;
+
+  /* ---- Cream / rind (warm neutrals) ---- */
+  --cream-50: #fffdf8;
+  --cream-100: #fbf7ef;
+  --cream-200: #f5efe2;
+  --cream-300: #eadfca;
+  --cream-400: #dbceb4;
+
+  /* ---- Earth (cool-free brown neutrals; text + grounding) ---- */
+  --earth-100: #e5ddd2;
+  --earth-200: #cdc1b1;
+  --earth-300: #a9957d;
+  --earth-400: #8a755c;
+  --earth-500: #6b573f;
+  --earth-600: #55432f;
+  --earth-700: #3f3123;
+  --earth-800: #2e2318;
+  --earth-900: #1e1610;
+
+  /* ---- Semantic hues ---- */
+  --success-50: #edf5ec;
+  --success-300: #8cbe86;
+  --success-500: #3f7a3a;
+  --success-700: #2a5527;
+  --warning-50: #fdf4e3;
+  --warning-300: #efc474;
+  --warning-500: #c98a12;
+  --warning-700: #8e5f08;
+  --danger-50: #fcedec;
+  --danger-300: #e39b95;
+  --danger-500: #c0392b;
+  --danger-700: #8b2620;
+  --info-50: #ecf2f6;
+  --info-300: #93b6cb;
+  --info-500: #2f6f93;
+  --info-700: #1e4d68;
+
+  /* ---- Chart sequence (warm-first, melon-interior logic) ---- */
+  --chart-1: #5a8a48;
+  --chart-2: #ec8940;
+  --chart-3: #8a755c;
+  --chart-4: #9ebf8d;
+  --chart-5: #c98a12;
+  --chart-6: #2f6f93;
+  --chart-7: #c0392b;
+  --chart-8: #38592e;
+  --chart-grid: #eadfca;
+  --chart-axis: #a9957d;
+  --chart-track: #f5efe2;
+
+  /* ================= SEMANTIC ALIASES ================= */
+  /* Surfaces */
+  --surface-app: #fbf7ef;
+  --surface-card: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f5efe2;
+  --surface-inset: #fffdf8;
+  --surface-hover: #f2f6ee;
+  --surface-active: #e0ead8;
+  --surface-selected: #f2f6ee;
+  --surface-inverse: #2e2318;
+  --surface-brand: #38592e;
+  --surface-brand-soft: #f2f6ee;
+  --surface-accent: #e0722a;
+  --surface-accent-soft: #fef4eb;
+  --surface-disabled: #f5efe2;
+
+  /* Text */
+  --text-heading: #2e2318;
+  --text-body: #3f3123;
+  --text-muted: #6b573f;
+  --text-subtle: #8a755c;
+  --text-inverse: #fffdf8;
+  --text-on-brand: #fffdf8;
+  --text-on-accent: #ffffff;
+  --text-link: #47713a;
+  --text-link-hover: #2b4424;
+  --text-brand: #38592e;
+  --text-accent: #9a4616;
+  --text-disabled: #a9957d;
+  --text-numeric: #2e2318;
+
+  /* Borders */
+  --border-subtle: #f5efe2;
+  --border-default: #e5ddd2;
+  --border-strong: #cdc1b1;
+  --border-heavy: #a9957d;
+  --border-focus: #5a8a48;
+  --border-brand: #47713a;
+  --border-accent: #ec8940;
+  --border-inverse: #55432f;
+
+  /* Status (badges, banners, rows) */
+  --status-success-bg: #edf5ec;
+  --status-success-fg: #2a5527;
+  --status-success-border: #8cbe86;
+  --status-warning-bg: #fdf4e3;
+  --status-warning-fg: #8e5f08;
+  --status-warning-border: #efc474;
+  --status-danger-bg: #fcedec;
+  --status-danger-fg: #8b2620;
+  --status-danger-border: #e39b95;
+  --status-info-bg: #ecf2f6;
+  --status-info-fg: #1e4d68;
+  --status-info-border: #93b6cb;
+  --status-neutral-bg: #f5efe2;
+  --status-neutral-fg: #55432f;
+  --status-neutral-border: #cdc1b1;
+  --status-accent-bg: #fef4eb;
+  --status-accent-fg: #9a4616;
+  --status-accent-border: #f8c79e;
+
+  /* Melon grading scale — used for harvest grade badges A/B/C/Reject */
+  --grade-a-bg: #e0ead8;
+  --grade-a-fg: #2b4424;
+  --grade-b-bg: #fce4cf;
+  --grade-b-fg: #9a4616;
+  --grade-c-bg: #fdf4e3;
+  --grade-c-fg: #8e5f08;
+  --grade-reject-bg: #fcedec;
+  --grade-reject-fg: #8b2620;
+
+  /* Interactive intents */
+  --action-primary-bg: #47713a;
+  --action-primary-bg-hover: #38592e;
+  --action-primary-bg-active: #2b4424;
+  --action-accent-bg: #e0722a;
+  --action-accent-bg-hover: #c25a1c;
+  --action-accent-bg-active: #9a4616;
+  --action-danger-bg: #c0392b;
+  --action-danger-bg-hover: #8b2620;
+  --focus-ring: rgba(90, 138, 72, 0.38);
+
+  /* ---- Typography ---- */
+  --font-sans: var(--font-source-sans), "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-source-serif), "Iowan Old Style", Georgia, serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-numeric: var(--font-sans);
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --fs-3xs: 11px;
+  --fs-2xs: 12px;
+  --fs-xs: 13px;
+  --fs-sm: 14px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 20px;
+  --fs-2xl: 24px;
+  --fs-3xl: 30px;
+  --fs-4xl: 38px;
+  --fs-5xl: 48px;
+  --fs-6xl: 60px;
+
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --ls-tighter: -0.02em;
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.02em;
+  --ls-caps: 0.07em;
+
+  --type-display: var(--fw-semibold) var(--fs-4xl) / var(--lh-tight) var(--font-display);
+  --type-h1: var(--fw-semibold) var(--fs-3xl) / var(--lh-tight) var(--font-display);
+  --type-h2: var(--fw-semibold) var(--fs-2xl) / var(--lh-snug) var(--font-display);
+  --type-h3: var(--fw-semibold) var(--fs-xl) / var(--lh-snug) var(--font-sans);
+  --type-h4: var(--fw-semibold) var(--fs-lg) / var(--lh-snug) var(--font-sans);
+  --type-body: var(--fw-regular) var(--fs-md) / var(--lh-normal) var(--font-sans);
+  --type-body-sm: var(--fw-regular) var(--fs-sm) / var(--lh-normal) var(--font-sans);
+  --type-label: var(--fw-semibold) var(--fs-xs) / var(--lh-snug) var(--font-sans);
+  --type-caption: var(--fw-regular) var(--fs-2xs) / var(--lh-snug) var(--font-sans);
+  --type-overline: var(--fw-semibold) var(--fs-3xs) / var(--lh-snug) var(--font-sans);
+  --type-table-head: var(--fw-semibold) var(--fs-2xs) / 1.2 var(--font-sans);
+  --type-table-cell: var(--fw-regular) var(--fs-sm) / 1.35 var(--font-sans);
+  --type-metric: var(--fw-semibold) var(--fs-3xl) / 1.05 var(--font-sans);
+  --type-mono: var(--fw-regular) var(--fs-xs) / 1.4 var(--font-mono);
+
+  --fv-tabular: "tnum" 1, "lnum" 1;
+  --fv-proportional: "pnum" 1;
+
+  /* ---- Radius ---- */
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --radius-pill: 999px;
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-badge: 3px;
+  --radius-tag: 3px;
+  --radius-input: 4px;
+  --radius-modal: 8px;
+  --radius-popover: 6px;
+  --radius-avatar: 4px;
+  --radius-bar: 2px;
+  --border-w-hair: 1px;
+  --border-w-thick: 2px;
+  --border-w-accent: 3px;
+
+  /* ---- Spacing ---- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  --density-row-h: 40px;
+  --density-row-px: 12px;
+  --density-row-py: 10px;
+  --pad-card: 20px;
+  --pad-card-sm: 14px;
+  --pad-card-lg: 28px;
+  --pad-control-x: 12px;
+  --pad-control-y: 8px;
+  --gap-inline: 8px;
+  --gap-stack: 12px;
+  --gap-section: 24px;
+  --gap-grid: 16px;
+
+  --sidebar-w: 236px;
+  --sidebar-w-collapsed: 60px;
+  --topbar-h: 56px;
+  --subbar-h: 44px;
+  --page-px: 28px;
+  --page-py: 24px;
+  --content-max: 1440px;
+  --panel-w: 360px;
+  --control-h-sm: 28px;
+  --control-h-md: 34px;
+  --control-h-lg: 42px;
+
+  /* ---- Elevation ---- */
+  --shadow-none: none;
+  --shadow-hairline: 0 0 0 1px var(--border-default);
+  --shadow-xs: 0 1px 1px rgba(46, 35, 24, 0.05);
+  --shadow-sm: 0 1px 2px rgba(46, 35, 24, 0.07), 0 1px 1px rgba(46, 35, 24, 0.04);
+  --shadow-md: 0 2px 6px rgba(46, 35, 24, 0.08), 0 1px 2px rgba(46, 35, 24, 0.05);
+  --shadow-lg: 0 8px 20px rgba(46, 35, 24, 0.1), 0 2px 6px rgba(46, 35, 24, 0.06);
+  --shadow-xl: 0 18px 44px rgba(46, 35, 24, 0.14), 0 4px 12px rgba(46, 35, 24, 0.07);
+  --shadow-inset: inset 0 1px 2px rgba(46, 35, 24, 0.06);
+  --shadow-focus: 0 0 0 3px var(--focus-ring);
+  --shadow-card: var(--shadow-xs);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-popover: var(--shadow-lg);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-sticky: 0 1px 0 var(--border-default);
+  --scrim-modal: rgba(46, 35, 24, 0.44);
+  --blur-scrim: blur(2px);
+
+  /* ---- Motion ---- */
+  --dur-instant: 80ms;
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+  --dur-slower: 400ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-control: background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+  --transition-surface: background-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard);
+  --press-scale: 0.99;
+
+  /* ---- Bridge for legacy code still reading --background/--foreground ---- */
+  --background: var(--surface-app);
+  --foreground: var(--text-body);
+}
+
+:root[data-density="compact"] {
+  --density-row-h: 32px;
+  --density-row-py: 6px;
+  --pad-card: 14px;
+  --gap-stack: 8px;
+}
+:root[data-density="comfortable"] {
+  --density-row-h: 48px;
+  --density-row-py: 14px;
+  --pad-card: 24px;
+  --gap-stack: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-slower: 0ms;
+    --press-scale: 1;
+  }
+}
+
+@theme inline {
+  --color-background: var(--surface-app);
+  --color-foreground: var(--text-body);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+/* ---- Base resets (design system tokens/base.css) ---- */
+/* Diletakkan dalam @layer base supaya rule di sini (misal warna default
+   <a>) tetap kalah lawan utility class Tailwind (mis. text-[var(--text-on-brand)]
+   di tombol berbentuk <a>) — CSS unlayered selalu menang atas layered
+   walau specificity-nya lebih rendah, jadi tanpa @layer rule ini akan
+   selalu override utility class apa pun di elemen <a>. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--surface-app);
+    color: var(--text-body);
+    font: var(--type-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    color: var(--text-heading);
+    text-wrap: balance;
+  }
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+  a {
+    color: var(--text-link);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: var(--transition-control);
+  }
+  a:hover {
+    color: var(--text-link-hover);
+    border-bottom-color: currentColor;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 1px;
+  }
+  table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+  ::selection {
+    background: var(--leaf-100);
+    color: var(--text-heading);
+  }
+}
+.fh-numeric {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--fv-tabular);
+}
+[data-fh-icon] > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
